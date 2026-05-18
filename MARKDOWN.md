@@ -136,20 +136,20 @@ Berikut adalah demonstrasi bagaimana Wazuh menangani insiden serangan DDoS, mend
 
 **A. Status Konektivitas Agen (Tugas 1)**
 *Deskripsi: Memastikan seluruh agen berhasil terkoneksi ke Wazuh Manager dan berstatus aktif sebelum serangan dimulai.*
-![dashboard](documentation/WAZUH-DASHBOARD-AGENTS)
+![dashboard](docum/WAZUH-DASHBOARD-AGENTS.jpeg)
 
 **B. Pelaksanaan Serangan (Tugas 2)**
 *Deskripsi: Terminal Attacker saat melancarkan serangan `ping flood` dan `hping3` ke server target.*
-![attacker](documentation/ATTACKER-TERMINAL)
+![attacker](docum/ATTACKER-TERMINAL.jpeg)
 
 **C. Deteksi Anomali Trafik & Alert Kritis (Tugas 3)**
 *Deskripsi: Dashboard Security Events pada Wazuh yang menunjukkan log peringatan kritis berwarna merah. Terlihat bahwa Rule ID `100105` (Ping Flood) dan `100103` (hping3 Flood) berhasil dipicu oleh serangan.*
 
-![PING](documentation/WAZUH-ALERT)
+![PING](docum/WAZUH-ALERT.jpeg)
 
-![PING](documentation/PING-AGENT1)
+![PING](docum/PING-AGENT1.jpeg)
 
-![HPING](documentation/HPING3)
+![HPING](docum/HPING3.jpeg)
 
 **D. Dampak pada Server Target**
 *Deskripsi: Bukti bahwa server target mengalami penurunan performa atau *Request Timeout* akibat beban dari serangan DDoS.*
