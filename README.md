@@ -13,23 +13,25 @@
 - [Deskripsi Proyek](#-deskripsi-proyek)
 - [Anggota Kelompok & Pembagian Tugas](#-anggota-kelompok--pembagian-tugas)
 - [Arsitektur Sistem](#-arsitektur-sistem)
-- [Tugas 1 - Infrastruktur SIEM](#tugas-1---infrastruktur-siem-agen-3)
-- [Tugas 2 - Simulasi Serangan DDoS](#tugas-2---simulasi-serangan-ddos-agen-2)
-- [Tugas 3 - PoC Deteksi Insiden](#tugas-3---poc-deteksi-insiden-agen-1)
-- [Tugas 4 - Analisis Log](#tugas-4---analisis-log-manajer)
+- [Tugas 1 — Infrastruktur SIEM](#tugas-1---infrastruktur-siem)
+- [Tugas 2 — Simulasi Serangan DDoS](#tugas-2---simulasi-serangan-ddos)
+- [Tugas 3 — PoC Deteksi Insiden](#tugas-3---poc-deteksi-insiden)
+- [Tugas 4 — Validasi Modul Malware (EICAR)](#tugas-4---validasi-modul-malware-eicar)
+- [Tugas 5 — Analisis Log Density](#tugas-5---analisis-log-density)
 - [Hasil & Kesimpulan](#-hasil--kesimpulan)
 
 ---
 
 ## 📌 Deskripsi Proyek
 
-Proyek ini merupakan implementasi **Security Information and Event Management (SIEM)** menggunakan platform **Wazuh** yang di-deploy di **Microsoft Azure Cloud**. Sistem ini digunakan untuk mendeteksi dan merespons insiden keamanan siber, khususnya serangan **Distributed Denial of Service (DDoS)**.
+Proyek ini merupakan implementasi **Security Information and Event Management (SIEM)** menggunakan platform **Wazuh** yang di-deploy di **Microsoft Azure Cloud** (Student Free Tier). Sistem ini digunakan untuk mendeteksi dan merespons insiden keamanan siber, menguji kapabilitas sensor terhadap anomali jaringan, serta memvalidasi pendeteksian berkas berbahaya.
 
-Proyek mencakup:
-1. Deployment infrastruktur Wazuh (Manager + Agents) di Azure
-2. Simulasi serangan DDoS untuk menguji sistem
-3. Demonstrasi kemampuan deteksi Wazuh
-4. Analisis kepadatan log (Logging Density)
+**Lingkup proyek:**
+1. Deployment infrastruktur Wazuh (1 Manager + 2 Agents) di Azure.
+2. Simulasi serangan DDoS (ICMP/Ping Flood) untuk menguji sistem.
+3. Demonstrasi kemampuan deteksi Wazuh (*Critical Alerts*).
+4. Validasi deteksi ancaman menggunakan berkas *malware dummy* EICAR.
+5. Analisis kepadatan log (*Logging Density*) dan mitigasinya.
 
 ---
 
@@ -37,10 +39,10 @@ Proyek mencakup:
 
 | Peran | Nama | NRP | Tanggung Jawab |
 |---|---|---|---|
-| **Manajer** | [Nama] | [NRP] | Koordinasi, Tugas 4 (Analisis Log), Laporan Final |
-| **Agen 1** (SOC Analyst) | [Nama] | [NRP] | Tugas 3 (PoC Deteksi), Monitoring Dashboard |
-| **Agen 2** (Red Team) | [Nama] | [NRP] | Tugas 2 (DDoS Scenario), Eksekusi Serangan |
-| **Agen 3** (SIEM Engineer) | [Adinda Cahya Pramesti] | [5027241117] | Tugas 1 (Infrastruktur), Deploy Wazuh |
+| **Manager (Project Leader & SOC)** | Maritza Adelia | 5027241111 | Koordinasi, Tugas 3 (PoC Deteksi), Tugas 5 (Analisis Log), Laporan |
+| **Manager (Project Leader & SOC)** | Oryza Qiara | 5027241084 | Setup Modul Malware (Tugas 4), FIM Monitoring, Dokumentasi GitHub |
+| **Agent 1 (Red Team / Attacker)** | Nadia Kirana | 5027241007 | Tugas 2 (DDoS Scenario), Eksekusi Serangan ICMP/hping3 |
+| **Agent 2 (SIEM Engineer)** | Adinda Cahya | 5027241117 | Tugas 1 (Infrastruktur), Deploy Wazuh VM, Azure NSG Routing |
 
 ---
 
@@ -48,51 +50,50 @@ Proyek mencakup:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│              Microsoft Azure Cloud                   │
-│              Region: Indonesia Central               │
-│                                                      │
+│              Microsoft Azure Cloud                  │
+│                                                     │
 │  ┌─────────────────┐     ┌──────────────────────┐   │
-│  │  Wazuh Manager  │◄────│    wazuh-agent1       │   │
-│  │  (10.0.0.5)     │     │    (Target/SOC)       │   │
-│  │                 │◄────│    wazuh-agent2       │   │
-│  │  Dashboard ✅   │     │    (Attacker)         │   │
-│  │  Indexer   ✅   │◄────│    wazuh-agent3       │   │
-│  │  Manager   ✅   │     │    (Agent tambahan)   │   │
-│  └─────────────────┘     └──────────────────────┘   │
-│         │                                            │
-│    VNet: wazuh-manager-vnet (10.0.0.0/24)           │
+│  │  Wazuh Manager  │◄────│    wazuh-agent1      │   │
+│  │ (70.153.25.20)  │     │    (Target/SOC)      │   │
+│  │                 │◄────│    IP: 10.0.0.6      │   │
+│  │  Dashboard ✅   │     └──────────────────────┘   │
+│  │  Indexer   ✅   │                                │
+│  │  Manager   ✅   │     ┌──────────────────────┐   │
+│  └─────────────────┘◄────│    wazuh-agent2      │   │
+│         │                │    (Attacker)        │   │
+│         │                │    IP: 10.0.0.7      │   │
+│         │                └──────────────────────┘   │
+│    VNet: wazuh-manager-vnet                         │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Spesifikasi VM
+**Spesifikasi VM:**
 
-| VM | Nama | Private IP | Public IP | Size | Fungsi |
-|---|---|---|---|---|---|
-| Manager | `wazuh-manager` | 10.0.0.5 | 70.153.25.20 | Standard_B1ms | Wazuh Manager + Dashboard |
-| Agent 1 | `wazuh-agent1` | 10.0.0.x | 70.153.25.28 | Standard_B1ms | Target Serangan / SOC |
-| Agent 2 | `wazuh-agent2` | 10.0.0.7 | - | Standard_B1ms | Mesin Penyerang |
-| Agent 3 | `wazuh-agent3` | 10.0.0.x | - | Standard_B1ms | Agent Tambahan |
+| VM | Nama | Private IP | Public IP | Fungsi |
+|---|---|---|---|---|
+| Manager | `wazuh-manager` | — | 70.153.25.20 | Pusat Kontrol, Pengumpul Log, & Dashboard |
+| Agent 1 | `wazuh-agent1` | 10.0.0.6 | 70.153.25.28 | Target Serangan DDoS & Injeksi Malware |
+| Agent 2 | `wazuh-agent2` | 10.0.0.7 | — | Mesin Penyerang (Attacker) |
 
 ---
 
 ## Tugas 1 - Infrastruktur SIEM (Agen 3)
 
-### 1.1 Persiapan Azure
+### 1.1 Persiapan Azure & Kredensial
 
-**Resource Group:**
-```
-Nama   : RG-Wazuh-SIEM
-Region : Indonesia Central
-```
+| Item | Nilai |
+|---|---|
+| Azure Portal Password | `azureMIKS2025` |
+| Wazuh Dashboard URL | `https://70.153.25.20` |
+| Wazuh Credentials | `admin` / `S9uWsCUXMx54?d?.+9HZM*+hTcXrq4ex` |
 
-**Virtual Network:**
-```
-Nama          : wazuh-manager-vnet
-Address Space : 10.0.0.0/24
-Subnet        : default
-```
+### 1.2 Verifikasi Infrastruktur
 
-### 1.2 Konfigurasi Network Security Group (NSG)
+Memastikan seluruh agen berhasil terkoneksi ke Wazuh Manager dan berstatus **Active** sebelum pengujian keamanan dimulai.
+
+![> 📸 Screenshot Referensi: `docum/WAZUH-DASHBOARD-AGENTS.jpeg`](docum/WAZUH-DASHBOARD-AGENTS.jpeg)
+
+### 1.3 Konfigurasi Network Security Group (NSG)
 
 Rules yang ditambahkan pada NSG Wazuh Manager:
 
@@ -104,7 +105,7 @@ Rules yang ditambahkan pada NSG Wazuh Manager:
 | 130 | Allow-Wazuh-Dashboard | 443 | TCP | Akses Dashboard Web |
 | 140 | Allow-Wazuh-API | 55000 | TCP | Wazuh REST API |
 
-### 1.3 Instalasi Wazuh Manager
+### 1.4 Instalasi Wazuh Manager
 
 ```bash
 # Download installer

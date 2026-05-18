@@ -16,21 +16,22 @@ Repositori ini berisi dokumentasi dan langkah-langkah implementasi tugas Praktik
 ## 📌 Deskripsi Tugas
 
 1. **Membangun Infrastruktur SIEM (Deploy Wazuh)**: Men-deploy arsitektur Wazuh yang terdiri dari **1 Wazuh Manager** dan **2 Server Agents** menggunakan platform Azure Cloud (Student Free Tier).
-2. **Membuat Simulasi Serangan (DDoS Scenario)**: Mengembangkan skenario serangan Distributed Denial of Service (DDoS) komprehensif untuk menguji ketahanan dan sistem deteksi Wazuh.
+2. **Membuat Skenario Serangan (DDoS Scenario)**: Mengembangkan skenario serangan Distributed Denial of Service (DDoS) komprehensif untuk menguji ketahanan dan sistem deteksi Wazuh.
 3. **Membuat Proof of Concept (PoC) Deteksi Insiden**: Mendemonstrasikan kapabilitas Wazuh dalam mendeteksi anomali *traffic* (DDoS) dan men-*generate* *critical alerts*.
-4. **Menganalisis Log**: Menganalisis masalah *logging density* (kepadatan log) dan distribusinya, serta memberikan solusi teknis (seperti *Log Rotation* atau *Level Filtering*).
+4. **Validasi Operasional Modul Malware**: Menguji kapabilitas sistem SIEM dalam mengenali dan memetakan berkas berbahaya secara *real-time* menggunakan berkas uji standar global.
+5. **Menganalisis Log**: Menganalisis masalah *logging density* (kepadatan log) dan distribusinya, serta memberikan solusi teknis (seperti *Log Rotation* atau *Level Filtering*).
 
 ---
 
 ## 👥 Pembagian Peran (1 Manager + 2 Agent)
 
-Karena kelompok terdiri dari 3 orang, pembagian tugas disesuaikan menjadi:
+Karena kelompok terdiri dari 4 orang, pembagian tugas disesuaikan menjadi:
 
 | Peran | Anggota | Tanggung Jawab Utama | Output/Deliverables |
 | --- | --- | --- | --- |
 | **Agent 2 (SIEM Engineer)** | *Adinda Cahya* | **(Tugas 1)** Deploy 3 VM di Azure (1 Manager, 2 Agents), install Wazuh, konfigurasi konektivitas (Active), dan *setup* Firewall/NSG Azure. | Screenshot Wazuh Dashboard menampilkan semua Agents berstatus `Active`. |
 | **Agent 1 (Red Team / Attacker)** | *Nadia Kirana* | **(Tugas 2)** Menyiapkan *tools* serangan (`hping3`, `ping`), melancarkan simulasi serangan DDoS (ICMP/SYN Flood) ke VM Target, melakukan IP Spoofing. | Screenshot terminal saat menyerang & bukti server melambat (*Request Timeout*). |
-| **Manager (Project Leader & SOC)** | *Maritza Adelia & Oryza Qiara* | **(Tugas 3 & 4)** *Standby* di Dashboard Wazuh, menangkap *Critical Alerts*, mendemonstrasikan PoC deteksi, menyusun dokumentasi laporan, dan membuat solusi *Logging Density*. | Screenshot *Alert* Merah (Critical), dokumen laporan akhir, penjelasan solusi *Log Density*. |
+| **Manager (Project Leader & SOC)** | *Maritza Adelia & Oryza Qiara* | **(Tugas 3, 4 & 5)** *Standby* di Dashboard Wazuh, menangkap *Critical Alerts*, mendemonstrasikan PoC deteksi DDoS, melakukan validasi operasional modul malware (EICAR), menyusun dokumentasi laporan, dan membuat solusi *Logging Density*. | Screenshot *Alert* Merah (Critical), Screenshot FIM Inventory (EICAR), dokumen laporan akhir, penjelasan solusi *Log Density*. |
 
 ---
 
@@ -154,6 +155,25 @@ Berikut adalah demonstrasi bagaimana Wazuh menangani insiden serangan DDoS, mend
 **D. Dampak pada Server Target**
 *Deskripsi: Bukti bahwa server target mengalami penurunan performa atau *Request Timeout* akibat beban dari serangan DDoS.*
 > `[MASUKKAN SCREENSHOT BUKTI SERVER MELAMBAT / TIMEOUT DI SINI]`
+
+**E. Validasi Operasional Modul Malware (Tugas Tambahan)**
+
+*Deskripsi: Menguji kapabilitas SIEM dalam mendeteksi ancaman malware menggunakan standar global EICAR Anti-Virus Test File. Berkas ini disimulasikan sebagai berkas berbahaya yang disusupkan langsung ke direktori kritis sistem pada target (Agent 1).*
+
+**1. Eksekusi Injeksi Berkas (Agent 1 / Target):**
+```bash
+# Mengunduh EICAR test file ke dalam folder testing
+sudo wget https://secure.eicar.org/eicar.com
+
+# Memindahkan berkas ke direktori sistem utama yang dipantau ketat
+sudo cp eicar.com /etc/eicar.com
+```
+
+**2. Hasil Deteksi Modul Keamanan:**
+Sistem Wazuh berhasil melakukan validasi operasional secara real-time. Berkas eicar.com langsung tertangkap dan dipetakan oleh modul File Integrity Monitoring (FIM) pada direktori /etc/eicar.com serta direktori pengujian, membuktikan sensor integritas SIEM berjalan 100% valid.
+
+![malware](docum/malwaremodule.png)
+![malware](image.png)
 
 ---
 
